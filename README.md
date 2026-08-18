@@ -1,81 +1,83 @@
-# Clean Citaton
+# Clean Citation
 
-Clean Citaton 是一个面向 Codex 的文献引用核验 Skill，也提供可独立运行的命令行程序。项目的最终落脚点是内置 Python 爬取与核验程序。宿主模型负责把自然语言和原始参考文献整理为检索提示，并研究人工核查候选；Python 程序独占正式来源抓取、匹配判定、字段定稿、BibTeX 与 Markdown 生成和只读发布。每条正式字段都对应可回查的第一方证据。
+Clean Citation is a citation verification Skill for Codex and also provides a standalone CLI. Its core is the bundled Python retrieval and verification runtime, with clear human-machine responsibilities: the host model interprets natural-language needs, structures raw references, prepares retrieval hints, and assists with research and manual-review candidates; the Python runtime owns every formal verification step, including first-party source retrieval, match decisions, canonical field selection, BibTeX and Markdown generation, and read-only publication. Every formal field in the final output must be supported by traceable first-party evidence.
 
-## 研究目的
+The installed Skill identifier, directory name, and CLI command are `clean-citaton`.
 
-通用文献工具常通过 Crossref、Semantic Scholar 等聚合平台扩大覆盖面。聚合记录会同时收录预印本、会议版、期刊版和作者资料页，同一研究成果因版本归并而产生年份、卷期、页码、作者顺序和发表状态差异。生成式模型在缺少权威证据时还会补全看似合理的字段，使引用幻觉进入论文写作流程。
+## Motivation
 
-Clean Citaton 将目标聚焦为一条干净、可复查、可重复运行的 Python 证据链：
+Many citation tools expand coverage through aggregators such as Crossref and Semantic Scholar. Aggregated records may combine preprints, conference papers, journal articles, and author-profile entries for the same research output. Version merging can introduce differences in year, volume, issue, pages, author order, and publication status. Generative models can also infer plausible-looking fields when authoritative evidence is sparse, allowing citation hallucinations to enter academic writing.
 
-1. 期刊、出版社和会议官方页面或官方 API 提供正式出版记录。
-2. OpenReview 提供公开投稿、评审状态与会议收录信息。
-3. arXiv 提供最新公开预印本记录。
-4. 单一权威记录整体拥有标题、作者顺序、年份、场所、DOI、卷期和页码等核心字段。
-5. 宿主模型把用户输入整理为 `citations.json` 检索提示。
-6. Python 爬虫访问官方页面与 API，完成规范化、路由、评分和状态分类。
-7. Python 导出器依据入选官方记录生成 BibTeX、Markdown、JSON 审计和只读清单。
-8. 失败项进入人工候选研究，确认后的 DOI 或官方 URL 回到下一轮 Python 核验。
+Clean Citation focuses on a clean, reviewable, and reproducible Python evidence chain:
 
-运行时接入源均为第一方权威源。Crossref 与 Semantic Scholar 作为研究对照保留在项目动机中，正式证据链聚焦官方出版记录、OpenReview 和 arXiv。
+1. Official journal, publisher, and conference pages or APIs provide formal publication records.
+2. OpenReview provides public submissions, review status, and venue decisions.
+3. arXiv provides the latest public preprint record.
+4. One selected authority owns the complete set of canonical fields, including title, author order, year, venue, DOI, volume, issue, and pages.
+5. The host model structures user input as retrieval hints in `citations.json`.
+6. The Python crawler retrieves official pages and APIs, then performs normalization, routing, scoring, and status classification.
+7. The Python exporter generates BibTeX, Markdown, JSON audit records, and read-only manifests from the selected official record.
+8. Unresolved entries enter a manual-review queue, and confirmed DOI or official URLs return to the next Python verification pass.
+
+All runtime sources belong to the first-party authority chain. Crossref and Semantic Scholar appear only in the project motivation; formal evidence comes from official publication records, OpenReview, and arXiv.
 
 ```text
-自然语言或原始参考文献
-  → 宿主模型整理 citations.json 检索提示
-  → Python 爬虫按官方源、OpenReview、arXiv 顺序取证
-  → Python 匹配器选定单一权威记录
-  → Python 导出 references.bib、references.md 与 verification.json
+Natural-language request or raw references
+  -> Host model structures citations.json retrieval hints
+  -> Python crawler checks official sources, OpenReview, and arXiv
+  -> Python matcher selects one authoritative record
+  -> Python exporter writes references.bib, references.md, and verification.json
 ```
 
-## 核心设计
+## Core Design
 
-- 官方优先：正式期刊、出版社和会议记录拥有最高优先级。
-- Python 定稿：正式引用字段、状态和导出文件全部由确定性 Python 程序生成。
-- 模型分工：宿主模型提供检索提示和人工核查候选，正式结果沿官方证据链产生。
-- 版本清晰：OpenReview 与 arXiv 分别保留投稿状态和预印本身份。
-- 字段同源：一条入选记录提供整组核心字段，形成清晰的版本边界。
-- 逐条发布：`progress.json` 在每条完成后更新，适合长列表进度观察。
-- 可追溯：`verification.json` 保存候选、分数、来源 URL、访问故障和凭据状态。
-- 可复现：缓存、固定路由、固定阈值和运行计划支持同项目复跑。
-- 防误改：程序输出采用原子替换、只读属性和 SHA-256 清单。
-- 人工闭环：失败条目进入结构化队列，模型提供高可信度第一方候选网页，人工完成最终确认。
+- **Official-first routing:** formal journal, publisher, and conference records receive the highest priority.
+- **Python-owned publication:** the deterministic Python runtime produces every formal field, status, and export file.
+- **Model responsibilities:** the host model prepares retrieval hints and high-confidence manual-review candidates.
+- **Explicit versions:** OpenReview and arXiv retain submission and preprint identities.
+- **Single-source fields:** one selected record supplies the complete canonical field set.
+- **Item-level progress:** `progress.json` updates after every completed entry.
+- **Traceable evidence:** `verification.json` stores candidates, scores, source URLs, access failures, and credential state.
+- **Reproducible runs:** caching, fixed routing, fixed thresholds, and run plans support repeat execution.
+- **Protected output:** atomic replacement, read-only attributes, and SHA-256 manifests protect program-owned files.
+- **Human review loop:** unresolved entries receive high-confidence first-party candidate pages for human confirmation.
 
-## 证据顺序
+## Evidence Order
 
-| 层级 | 角色 | 输出状态 |
+| Level | Authority role | Output status |
 |---|---|---|
-| L1 | 官方期刊、出版社、会议页面或 API | `FINAL` |
-| L1 | 以 OpenReview 作为正式发布平台的会议 | `FINAL` |
-| L2 | 其他场景中的 OpenReview 公开记录 | `PROVISIONAL_OPENREVIEW`、`OPENREVIEW_SUBMISSION`、`REJECTED_OPENREVIEW` |
-| L3 | arXiv 最新公开记录 | `PREPRINT_ARXIV` |
+| L1 | Official journal, publisher, conference page, or API | `FINAL` |
+| L1 | OpenReview as the venue's formal publication platform | `FINAL` |
+| L2 | Other public OpenReview records | `PROVISIONAL_OPENREVIEW`, `OPENREVIEW_SUBMISSION`, `REJECTED_OPENREVIEW` |
+| L3 | Latest public arXiv record | `PREPRINT_ARXIV` |
 
-正式源出现密钥、TLS、HTTP 或网络故障时，程序记录故障并继续执行 OpenReview 与 arXiv。每一层结果均保留自身身份，审计文件同时保留上游访问情况。
+When an official source encounters credential, TLS, HTTP, or network failure, the runtime records the failure and continues through OpenReview and arXiv. Every result retains its own publication identity, while the audit record preserves upstream access details.
 
-## 官方数据源
+## Official Data Sources
 
-| Adapter | 第一方来源 | 凭据 |
+| Adapter | First-party source | Access |
 |---|---|---|
-| `neurips` | NeurIPS Proceedings | 公共读取 |
-| `pmlr` | Proceedings of Machine Learning Research | 公共读取 |
-| `mlsys` | MLSys Proceedings | 公共读取 |
-| `acl_anthology` | ACL Anthology | 公共读取 |
-| `cvf` | CVF Open Access | 公共读取 |
-| `usenix` | USENIX Proceedings | 公共读取 |
-| `aaai` | AAAI OJS | 公共读取 |
-| `ijcai` | IJCAI Proceedings | 公共读取 |
-| `jmlr` | Journal of Machine Learning Research | 公共读取 |
-| `vldb` | VLDB Endowment | 公共读取 |
-| `openreview` | OpenReview API v2 与 v1 | 公共读取，短期会话令牌选配 |
-| `arxiv` | arXiv API | 公共读取 |
+| `neurips` | NeurIPS Proceedings | Public |
+| `pmlr` | Proceedings of Machine Learning Research | Public |
+| `mlsys` | MLSys Proceedings | Public |
+| `acl_anthology` | ACL Anthology | Public |
+| `cvf` | CVF Open Access | Public |
+| `usenix` | USENIX Proceedings | Public |
+| `aaai` | AAAI OJS | Public |
+| `ijcai` | IJCAI Proceedings | Public |
+| `jmlr` | Journal of Machine Learning Research | Public |
+| `vldb` | VLDB Endowment | Public |
+| `openreview` | OpenReview API v2 and v1 | Public, optional short-lived session token |
+| `arxiv` | arXiv API | Public |
 | `ieee` | IEEE Xplore Metadata API | `IEEE_XPLORE_API_KEY` |
 | `springer` | Springer Nature Meta API v2 | `SPRINGER_NATURE_API_KEY` |
 | `elsevier` | Elsevier Article Metadata API | `ELSEVIER_API_KEY` |
 
-AAAI OJS 在部分 Windows Python 环境中会触发 OpenSSL `record layer failure`。运行时先使用 Python 标准网络栈，首次出现连接级 TLS 故障后，仅对 `ojs.aaai.org` 启用操作系统 `curl` TLS 通道。页面、跳转目标和元数据仍来自 AAAI 官方域名，HTTP 状态与访问控制保持原样。
+Some Windows Python environments trigger an OpenSSL `record layer failure` with AAAI OJS. The runtime starts with the Python standard network stack and activates the operating-system `curl` TLS channel only for `ojs.aaai.org` after a connection-level TLS failure. Pages, redirect targets, metadata, HTTP status, and access controls remain under the AAAI official domain.
 
-arXiv 适配器遵守官方旧版 API 的访问节奏：全局单连接，相邻请求至少间隔 3.05 秒，并对精确 ID 进行批量查询与缓存。
+The arXiv adapter follows the legacy API access cadence: one global connection, at least 3.05 seconds between adjacent requests, exact-ID batching, and caching.
 
-## 项目结构
+## Repository Layout
 
 ```text
 .
@@ -93,7 +95,7 @@ arXiv 适配器遵守官方旧版 API 的访问节奏：全局单连接，相邻
 └─ pyproject.toml
 ```
 
-每个核验任务使用独立项目目录：
+Each verification job uses a dedicated project directory:
 
 ```text
 citation-projects/<project-name>/
@@ -113,13 +115,13 @@ citation-projects/<project-name>/
 └─ .cache/
 ```
 
-`results/` 与 `.cache/` 由程序管理。`input/` 与 `manual-review/` 承载用户、模型和人工核查信息。同一项目可以直接复跑，Windows 只读文件由发布器安全解锁、原子替换并重新保护。
+The runtime owns `results/` and `.cache/`. Users, the host model, and human reviewers own `input/` and `manual-review/`. Repeated runs reuse the same project directory. On Windows, the publisher safely unlocks runtime-owned files, replaces them atomically, and restores read-only protection.
 
-## 安装到 Codex
+## Install in Codex
 
-### Windows 源码仓库
+### Windows source checkout
 
-PowerShell 执行：
+Run in PowerShell:
 
 ```powershell
 git clone https://github.com/qqaqq-code/clean-citation.git
@@ -130,11 +132,11 @@ New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
 New-Item -ItemType Junction -Path (Join-Path $skillsRoot "clean-citaton") -Target $skillSource
 ```
 
-`$skillSource` 会解析为实际克隆位置下的 `skills\clean-citaton`。仓库内容更新后，Junction 会同步呈现最新版本。
+`$skillSource` resolves to `skills\clean-citaton` inside the actual clone location. Repository updates appear immediately through the Junction.
 
-### macOS 与 Linux 源码仓库
+### macOS and Linux source checkout
 
-终端执行：
+Run in a terminal:
 
 ```bash
 git clone https://github.com/qqaqq-code/clean-citation.git
@@ -145,17 +147,17 @@ mkdir -p "$codex_root/skills"
 ln -s "$repository_root/skills/clean-citaton" "$codex_root/skills/clean-citaton"
 ```
 
-GitHub Release 便携包内置独立可执行程序，适合直接分发：
+Portable GitHub Release bundles contain standalone executables:
 
 - `clean-citaton-windows-x64.zip`
 - `clean-citaton-linux-x64.tar.gz`
 - `clean-citaton-macos-arm64.tar.gz`
 
-## 运行
+## Run
 
-以下命令可在任意论文项目根目录执行。`$projectDir` 指向当前项目的独立核验目录，输入 JSON 保存为 `$projectDir\input\citations.json`。
+The following commands work from any research project root. `$projectDir` points to a dedicated verification directory in the current project. Save the input JSON as `$projectDir\input\citations.json`.
 
-### Windows Python 源码模式
+### Windows with Python
 
 ```powershell
 $skillRoot = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton"
@@ -165,7 +167,7 @@ python $runtime --project-dir $projectDir --plan-only
 python $runtime --project-dir $projectDir
 ```
 
-### Windows 便携程序模式
+### Windows portable executable
 
 ```powershell
 $skillRoot = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton"
@@ -175,7 +177,7 @@ $projectDir = Join-Path (Get-Location) "citation-projects\demo"
 & $runtime --project-dir $projectDir
 ```
 
-### macOS 与 Linux Python 源码模式
+### macOS and Linux with Python
 
 ```bash
 skill_root="${CODEX_HOME:-$HOME/.codex}/skills/clean-citaton"
@@ -185,9 +187,9 @@ python3 "$runtime" --project-dir "$project_dir" --plan-only
 python3 "$runtime" --project-dir "$project_dir"
 ```
 
-第一阶段由 Python 生成路由与耗时预估。第二阶段由 Python 执行网络抓取和证据匹配，并逐条发布只读结果。公开源缓存会显著缩短同项目复跑时间。
+The planning pass produces routing and duration estimates. The verification pass retrieves official evidence, evaluates matches, and publishes read-only results one item at a time. Public-source caching shortens repeated runs of the same project.
 
-输入格式示例：
+Input example:
 
 ```json
 {
@@ -204,31 +206,31 @@ python3 "$runtime" --project-dir "$project_dir"
 }
 ```
 
-## 人工核查闭环
+## Manual Review Loop
 
-程序把本轮缺少可导出记录的条目写入 `results/manual-review-queue.json`。宿主模型读取该队列，访问官方出版社、官方会议、OpenReview 或 arXiv 页面，并把高可信度候选写入 `manual-review/candidates.json` 与 `manual-review/candidates.md`。
+The runtime writes entries awaiting citable records to `results/manual-review-queue.json`. The host model reads this queue, visits official publisher, official conference, OpenReview, or arXiv pages, and writes high-confidence candidates to `manual-review/candidates.json` and `manual-review/candidates.md`.
 
-每个候选包含：
+Each candidate includes:
 
-- 可访问的第一方 URL
-- 来源名称与权威角色
-- 访问检查时间
-- 标题、作者、年份、DOI 或标识符证据
-- `HIGH` 置信度标签
-- 建议回填的 `official_url` 与 DOI
+- an accessible first-party URL;
+- the source name and authority role;
+- the access-check time;
+- title, author, year, DOI, or identifier evidence;
+- a `HIGH` confidence label;
+- a suggested `official_url` and DOI for the next pass.
 
-人工确认后的字段进入 `input/citations.json`，随后由同一确定性流水线重新核验。候选研究与正式 BibTeX 分处两个目录，责任边界清晰。
+Human-confirmed fields return to `input/citations.json`, followed by a fresh deterministic verification pass. Candidate research and formal BibTeX remain in separate directories with explicit ownership boundaries.
 
-## 可选凭据
+## Optional Credentials
 
-仓库只提供空白变量模板 `.env.example`。个人凭据位于仓库外的用户主目录：
+The repository contains an empty variable template in `.env.example`. Personal credentials live under the user's home directory:
 
 ```text
 Windows:     %USERPROFILE%\.clean-citaton\credentials.env
 macOS/Linux: ~/.clean-citaton/credentials.env
 ```
 
-内容格式：
+File format:
 
 ```text
 IEEE_XPLORE_API_KEY=
@@ -237,25 +239,25 @@ ELSEVIER_API_KEY=
 OPENREVIEW_ACCESS_TOKEN=
 ```
 
-环境变量拥有更高优先级。`--show-config` 仅展示 configured、missing 与 public mode 状态。
+Environment variables have higher priority. `--show-config` reports only `configured`, `missing`, and `public mode` states.
 
 ```powershell
 $runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
 python $runtime --show-config
 ```
 
-OpenReview 匿名接口触发 `ChallengeRequiredError` 时，官方登录流程可创建最长七天的会话令牌：
+When an anonymous OpenReview request returns `ChallengeRequiredError`, the official login flow can create a session token for up to seven days:
 
 ```powershell
 $runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
 python $runtime --configure-openreview
 ```
 
-该流程支持 MFA，凭据文件仅保存会话令牌。IEEE、Springer Nature 与 Elsevier 的应用状态和调用额度由各自开发者平台管理。
+The flow supports MFA and stores only the session token in the credential file. IEEE, Springer Nature, and Elsevier developer platforms manage application status and request quotas.
 
-## 扩展会议与期刊
+## Extend Venues and Journals
 
-现有适配器通过用户配置完成场所扩展，Python 运行文件保持发布态。配置文件示例：
+User configuration can map additional venues to existing adapters while the Python runtime remains in its released state. Example configuration:
 
 ```json
 {
@@ -276,7 +278,7 @@ python $runtime --configure-openreview
 }
 ```
 
-运行参数：
+Run with an overlay:
 
 ```powershell
 $runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
@@ -284,29 +286,29 @@ $projectDir = Join-Path (Get-Location) "citation-projects\demo"
 python $runtime --project-dir $projectDir --source-config ".\my-sources.json"
 ```
 
-全新官方 API 适配器由维护者在开发分支中实现，并配套固定响应样本、速率限制、缓存策略、凭据脱敏和来源角色说明。
+Maintainers implement new official API adapters on a development branch together with captured response samples, rate limits, cache policy, credential redaction, and authority-role documentation.
 
-## 输出状态
+## Result Statuses
 
-| 状态 | 含义 | BibTeX |
+| Status | Meaning | BibTeX behavior |
 |---|---|---|
-| `FINAL` | 正式权威记录 | 导出 |
-| `PROVISIONAL_OPENREVIEW` | 非原生场所的已接收 OpenReview 记录 | 带标签导出 |
-| `OPENREVIEW_SUBMISSION` | 公开投稿记录 | 以 `@misc` 导出 |
-| `REJECTED_OPENREVIEW` | 公开拒稿记录 | 以 `@misc` 和拒稿标签导出 |
-| `PREPRINT_ARXIV` | arXiv 最新预印本 | 带标签导出 |
-| `SOURCE_UNAVAILABLE` | 上游源出现访问故障，后续层级以空结果结束 | 进入人工核查队列 |
-| `UNVERIFIED` | 全部查询正常完成，可靠匹配数量为零 | 进入人工核查队列 |
-| `AMBIGUOUS` | 多个候选分数接近 | 进入人工核查队列 |
-| `WITHDRAWN_*` | 官方撤稿状态 | 进入审计记录 |
+| `FINAL` | Formal authoritative record | Exported |
+| `PROVISIONAL_OPENREVIEW` | Accepted OpenReview record for a venue with another native publication source | Exported with a label |
+| `OPENREVIEW_SUBMISSION` | Public submission record | Exported as `@misc` |
+| `REJECTED_OPENREVIEW` | Public rejected submission | Exported as labeled `@misc` |
+| `PREPRINT_ARXIV` | Latest arXiv preprint | Exported with a label |
+| `SOURCE_UNAVAILABLE` | Upstream access failure followed by zero fallback matches | Sent to manual review |
+| `UNVERIFIED` | All queries completed with zero reliable matches | Sent to manual review |
+| `AMBIGUOUS` | Multiple candidates received similar scores | Sent to manual review |
+| `WITHDRAWN_*` | Official withdrawal state | Retained in the audit record |
 
-退出码 `0` 表示全部条目达到 `FINAL`，退出码 `2` 表示结果已发布且包含其他状态，退出码 `3` 表示运行文件完整性校验触发。
+Exit code `0` means every entry reached `FINAL`. Exit code `2` means the published results contain another status. Exit code `3` means runtime integrity validation triggered.
 
-## 项目完整性
+## Project Integrity
 
-项目使用运行文件哈希、只读发布、缓存脱敏、Skill 结构校验和 GitHub Actions 跨平台构建。
+The project uses runtime hashes, read-only publication, cache redaction, Skill structure validation, and GitHub Actions cross-platform builds.
 
-更多设计细节见 [数据源说明](skills/clean-citaton/references/data-sources.md)、[运行方式](skills/clean-citaton/references/runtime.md)、[输入输出结构](skills/clean-citaton/references/schemas.md) 与 [人工核查流程](skills/clean-citaton/references/manual-review.md)。
+Further design details are available in [Data Sources](skills/clean-citaton/references/data-sources.md), [Runtime](skills/clean-citaton/references/runtime.md), [Schemas](skills/clean-citaton/references/schemas.md), and [Manual Review](skills/clean-citaton/references/manual-review.md).
 
 ## License
 
