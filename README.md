@@ -1,6 +1,6 @@
 # Clean Citation
 
-Clean Citation is a citation verification Skill for Codex and also provides a standalone CLI. Its core is the bundled Python retrieval and verification runtime, with clear human-machine responsibilities: the host model interprets natural-language needs, structures raw references, prepares retrieval hints, and assists with research and manual-review candidates; the Python runtime owns every formal verification step, including first-party source retrieval, match decisions, canonical field selection, BibTeX and Markdown generation, and read-only publication. Every formal field in the final output must be supported by traceable first-party evidence.
+Clean Citation is a literature citation verification Skill designed for Codex, with a standalone CLI also available. At its core is a built-in Python-based retrieval and verification program with a clearly defined division of responsibilities: the host model interprets natural-language requests, organizes raw references, generates search prompts, and assists with research and manual review of candidate sources; the Python program handles the entire formal verification pipeline, including retrieval from primary sources, match determination, finalization of bibliographic fields, generation of BibTeX and Markdown, and read-only publication of the results. Every finalized field in the output must be backed by traceable evidence from a primary source.
 
 The installed Skill identifier, directory name, and CLI command are `clean-citaton`.
 
