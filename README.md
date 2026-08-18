@@ -153,23 +153,36 @@ GitHub Release 便携包内置独立可执行程序，适合直接分发：
 
 ## 运行
 
-### 便携程序
+以下命令可在任意论文项目根目录执行。`$projectDir` 指向当前项目的独立核验目录，输入 JSON 保存为 `$projectDir\input\citations.json`。
+
+### Windows Python 源码模式
 
 ```powershell
-$runtime = ".\skills\clean-citaton\bin\windows-x64\clean-citaton.exe"
-& $runtime --project-dir ".\citation-projects\demo" --plan-only
-& $runtime --project-dir ".\citation-projects\demo"
+$skillRoot = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton"
+$runtime = Join-Path $skillRoot "scripts\clean_citaton.py"
+$projectDir = Join-Path (Get-Location) "citation-projects\demo"
+python $runtime --project-dir $projectDir --plan-only
+python $runtime --project-dir $projectDir
 ```
 
-### Python 源码模式
+### Windows 便携程序模式
 
 ```powershell
-python .\skills\clean-citaton\scripts\clean_citaton.py `
-  --project-dir ".\citation-projects\demo" `
-  --plan-only
+$skillRoot = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton"
+$runtime = Join-Path $skillRoot "bin\windows-x64\clean-citaton.exe"
+$projectDir = Join-Path (Get-Location) "citation-projects\demo"
+& $runtime --project-dir $projectDir --plan-only
+& $runtime --project-dir $projectDir
+```
 
-python .\skills\clean-citaton\scripts\clean_citaton.py `
-  --project-dir ".\citation-projects\demo"
+### macOS 与 Linux Python 源码模式
+
+```bash
+skill_root="${CODEX_HOME:-$HOME/.codex}/skills/clean-citaton"
+runtime="$skill_root/scripts/clean_citaton.py"
+project_dir="$(pwd)/citation-projects/demo"
+python3 "$runtime" --project-dir "$project_dir" --plan-only
+python3 "$runtime" --project-dir "$project_dir"
 ```
 
 第一阶段由 Python 生成路由与耗时预估。第二阶段由 Python 执行网络抓取和证据匹配，并逐条发布只读结果。公开源缓存会显著缩短同项目复跑时间。
@@ -227,13 +240,15 @@ OPENREVIEW_ACCESS_TOKEN=
 环境变量拥有更高优先级。`--show-config` 仅展示 configured、missing 与 public mode 状态。
 
 ```powershell
-python .\skills\clean-citaton\scripts\clean_citaton.py --show-config
+$runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
+python $runtime --show-config
 ```
 
 OpenReview 匿名接口触发 `ChallengeRequiredError` 时，官方登录流程可创建最长七天的会话令牌：
 
 ```powershell
-python .\skills\clean-citaton\scripts\clean_citaton.py --configure-openreview
+$runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
+python $runtime --configure-openreview
 ```
 
 该流程支持 MFA，凭据文件仅保存会话令牌。IEEE、Springer Nature 与 Elsevier 的应用状态和调用额度由各自开发者平台管理。
@@ -264,9 +279,9 @@ python .\skills\clean-citaton\scripts\clean_citaton.py --configure-openreview
 运行参数：
 
 ```powershell
-python .\skills\clean-citaton\scripts\clean_citaton.py `
-  --project-dir ".\citation-projects\demo" `
-  --source-config ".\my-sources.json"
+$runtime = Join-Path $env:USERPROFILE ".codex\skills\clean-citaton\scripts\clean_citaton.py"
+$projectDir = Join-Path (Get-Location) "citation-projects\demo"
+python $runtime --project-dir $projectDir --source-config ".\my-sources.json"
 ```
 
 全新官方 API 适配器由维护者在开发分支中实现，并配套固定响应样本、速率限制、缓存策略、凭据脱敏和来源角色说明。
