@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+release/
+*.spec
+.venv/
+venv/
+.agents/
+
+# The canonical package lives under the Skill; do not recreate a second root copy.
+/src/
+
+.env
+.env.*
+!.env.example
+output/
+/citation-projects/
+*.log
+.DS_Store
+Thumbs.db

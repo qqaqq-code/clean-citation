@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "mode": "references",
+  "papers": [
+    {
+      "title": "Attention Is All You Need",
+      "authors": ["Ashish Vaswani"],
+      "year": 2017,
+      "venue": "NeurIPS",
+      "track": "main",
+      "doi": null,
+      "arxiv_id": "1706.03762",
+      "original_text": "Vaswani, A. et al. (2017). Attention Is All You Need."
+    }
+  ]
+}

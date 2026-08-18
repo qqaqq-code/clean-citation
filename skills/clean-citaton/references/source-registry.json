@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "domains": {
+    "proceedings.neurips.cc": "neurips",
+    "proceedings.mlr.press": "pmlr",
+    "aclanthology.org": "acl_anthology",
+    "ieeexplore.ieee.org": "ieee",
+    "openaccess.thecvf.com": "cvf",
+    "usenix.org": "usenix",
+    "link.springer.com": "springer",
+    "ojs.aaai.org": "aaai",
+    "ijcai.org": "ijcai",
+    "openreview.net": "openreview",
+    "arxiv.org": "arxiv",
+    "jmlr.org": "jmlr",
+    "proceedings.mlsys.org": "mlsys",
+    "vldb.org": "vldb",
+    "sciencedirect.com": "elsevier",
+    "api.elsevier.com": "elsevier"
+  },
+  "doi_prefixes": {
+    "10.1109/": "ieee",
+    "10.1007/": "springer",
+    "10.18653/": "acl_anthology",
+    "10.1609/": "aaai",
+    "10.14778/": "vldb",
+    "10.1016/": "elsevier",
+    "10.24963/": "ijcai"
+  },
+  "venues": [
+    {
+      "venue": "NeurIPS",
+      "aliases": ["NIPS", "Advances in Neural Information Processing Systems"],
+      "official": [{"adapter": "neurips", "role": "official_proceedings"}],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ICLR",
+      "aliases": ["International Conference on Learning Representations"],
+      "official": [{"adapter": "openreview", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ICML",
+      "aliases": ["International Conference on Machine Learning"],
+      "official": [{"adapter": "pmlr", "role": "official_proceedings"}],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "AISTATS",
+      "aliases": ["International Conference on Artificial Intelligence and Statistics"],
+      "official": [{"adapter": "pmlr", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "CoRL",
+      "aliases": ["Conference on Robot Learning"],
+      "official": [{"adapter": "pmlr", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "UAI",
+      "aliases": ["Conference on Uncertainty in Artificial Intelligence"],
+      "official": [{"adapter": "pmlr", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "CVPR",
+      "aliases": ["Conference on Computer Vision and Pattern Recognition"],
+      "official": [
+        {"adapter": "ieee", "role": "official_publication", "credential": "IEEE_XPLORE_API_KEY", "optional_when_missing_credential": true},
+        {"adapter": "cvf", "role": "official_open_access"}
+      ],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ICCV",
+      "aliases": ["International Conference on Computer Vision"],
+      "official": [
+        {"adapter": "ieee", "role": "official_publication", "credential": "IEEE_XPLORE_API_KEY", "optional_when_missing_credential": true},
+        {"adapter": "cvf", "role": "official_open_access"}
+      ],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "WACV",
+      "aliases": ["Winter Conference on Applications of Computer Vision"],
+      "official": [
+        {"adapter": "ieee", "role": "official_publication", "credential": "IEEE_XPLORE_API_KEY", "optional_when_missing_credential": true},
+        {"adapter": "cvf", "role": "official_open_access"}
+      ],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ACL",
+      "aliases": ["Annual Meeting of the Association for Computational Linguistics"],
+      "official": [{"adapter": "acl_anthology", "role": "official_proceedings"}],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "EMNLP",
+      "aliases": ["Empirical Methods in Natural Language Processing"],
+      "official": [{"adapter": "acl_anthology", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "NAACL",
+      "aliases": ["North American Chapter of the Association for Computational Linguistics"],
+      "official": [{"adapter": "acl_anthology", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "EACL",
+      "aliases": ["European Chapter of the Association for Computational Linguistics"],
+      "official": [{"adapter": "acl_anthology", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "COLING",
+      "aliases": ["International Conference on Computational Linguistics"],
+      "official": [{"adapter": "acl_anthology", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ACM",
+      "aliases": ["ACM SIGSAC", "ACM CCS", "SIGIR", "KDD", "The Web Conference", "ACM Multimedia"],
+      "official": [],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "IEEE",
+      "aliases": ["IEEE S&P", "IEEE Symposium on Security and Privacy", "ICDM", "ICDE", "INFOCOM", "ICDCS"],
+      "official": [{"adapter": "ieee", "role": "official_publication", "credential": "IEEE_XPLORE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "USENIX",
+      "aliases": ["OSDI", "NSDI", "USENIX Security", "USENIX ATC"],
+      "official": [{"adapter": "usenix", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "ECCV",
+      "aliases": ["European Conference on Computer Vision", "LNCS", "Lecture Notes in Computer Science"],
+      "official": [{"adapter": "springer", "role": "official_publication", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "AAAI",
+      "aliases": ["AAAI Conference on Artificial Intelligence"],
+      "official": [{"adapter": "aaai", "role": "official_proceedings"}],
+      "review": {"adapter": "openreview", "role": "review_platform"},
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "IJCAI",
+      "aliases": ["International Joint Conference on Artificial Intelligence"],
+      "official": [{"adapter": "ijcai", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "JMLR",
+      "aliases": ["Journal of Machine Learning Research"],
+      "official": [{"adapter": "jmlr", "role": "official_journal"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Foundations of Computational Mathematics",
+      "aliases": ["Found. Comput. Math."],
+      "official": [{"adapter": "springer", "role": "official_journal", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Sampling Theory, Signal Processing, and Data Analysis",
+      "aliases": ["Sampling Theory Signal Processing and Data Analysis"],
+      "official": [{"adapter": "springer", "role": "official_journal", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Journal of the American Statistical Association",
+      "aliases": ["JASA", "J. Amer. Statist. Assoc."],
+      "official": [],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "MLSys",
+      "aliases": ["Proceedings of Machine Learning and Systems", "Machine Learning and Systems"],
+      "official": [{"adapter": "mlsys", "role": "official_proceedings"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "PVLDB",
+      "aliases": ["Proceedings of the VLDB Endowment", "Proceedings of VLDB Endowment"],
+      "official": [{"adapter": "vldb", "role": "official_journal"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Web and Big Data",
+      "aliases": ["APWeb-WAIM", "WAIM"],
+      "official": [{"adapter": "springer", "role": "official_proceedings", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Information Retrieval",
+      "aliases": ["Information Retrieval Journal"],
+      "official": [{"adapter": "springer", "role": "official_journal", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Optimal Estimation in Approximation Theory",
+      "aliases": [],
+      "official": [{"adapter": "springer", "role": "official_book", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Euro-Par",
+      "aliases": ["Euro-Par Parallel Processing"],
+      "official": [{"adapter": "springer", "role": "official_proceedings", "credential": "SPRINGER_NATURE_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Journal of Parallel and Distributed Computing",
+      "aliases": ["JPDC"],
+      "official": [{"adapter": "elsevier", "role": "official_journal", "credential": "ELSEVIER_API_KEY"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Workshop on Mining and Learning with Graphs",
+      "aliases": ["Mining and Learning with Graphs", "MLG"],
+      "official": [],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "Foundations and Trends in Machine Learning",
+      "aliases": ["Foundations and Trends® in Machine Learning"],
+      "official": [],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "AI Magazine",
+      "aliases": ["AIMagazine"],
+      "official": [{"adapter": "aaai", "role": "official_journal"}],
+      "fallback": ["arxiv"]
+    },
+    {
+      "venue": "SIAM International Conference on Data Mining",
+      "aliases": ["SDM", "SIAM SDM"],
+      "official": [],
+      "fallback": ["arxiv"]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Citaton"
+  short_description: "Build citations with a Python official-source crawler"
+  default_prompt: "Use $clean-citaton to structure these reference hints, let the bundled Python crawler verify official records, and generate auditable citation files."

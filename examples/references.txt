@@ -1,0 +1,2 @@
+Vaswani, A. et al. (2017). Attention Is All You Need.
+Devlin et al., BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, 2018.

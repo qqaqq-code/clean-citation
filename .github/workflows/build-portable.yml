@@ -1,0 +1,89 @@
+name: Build portable Skill bundles
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows-x64
+            executable: clean-citaton.exe
+            archive: clean-citaton-windows-x64.zip
+          - os: ubuntu-latest
+            platform: linux-x64
+            executable: clean-citaton
+            archive: clean-citaton-linux-x64.tar.gz
+          - os: macos-latest
+            platform: macos-arm64
+            executable: clean-citaton
+            archive: clean-citaton-macos-arm64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install build-only dependency
+        run: python -m pip install "pyinstaller==6.21.0"
+      - name: Build standalone executable
+        run: >-
+          python -m PyInstaller --clean --noconfirm --onefile
+          --add-data "skills/clean-citaton/references/source-registry.json:references"
+          --name clean-citaton
+          skills/clean-citaton/scripts/clean_citaton.py
+      - name: Assemble portable Skill
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item -Recurse skills/clean-citaton release/clean-citaton
+          $binDir = "release/clean-citaton/bin/${{ matrix.platform }}"
+          New-Item -ItemType Directory -Force $binDir | Out-Null
+          Copy-Item "dist/${{ matrix.executable }}" $binDir
+          if ("${{ matrix.platform }}" -eq "windows-x64") {
+            Get-ChildItem "release/clean-citaton/scripts" -Recurse -Filter "*.py" | ForEach-Object { $_.IsReadOnly = $true }
+          } else {
+            & chmod +x "$binDir/${{ matrix.executable }}"
+            Get-ChildItem "release/clean-citaton/scripts" -Recurse -Filter "*.py" | ForEach-Object { & chmod a-w $_.FullName }
+          }
+      - name: Archive Windows bundle
+        if: matrix.platform == 'windows-x64'
+        shell: pwsh
+        run: Compress-Archive -Path release/clean-citaton -DestinationPath "${{ matrix.archive }}"
+      - name: Archive Unix bundle
+        if: matrix.platform != 'windows-x64'
+        shell: bash
+        run: tar -czf "${{ matrix.archive }}" -C release clean-citaton
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clean-citaton-${{ matrix.platform }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: clean-citaton-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish GitHub release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" release-assets/* --clobber
