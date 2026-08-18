@@ -119,37 +119,26 @@ citation-projects/<project-name>/
 
 ### Windows 源码仓库
 
-PowerShell 先进入克隆后的仓库根目录，再执行：
+PowerShell 执行：
 
 ```powershell
-$repositoryRoot = (Get-Location).Path
-$skillSource = Join-Path $repositoryRoot "skills\clean-citaton"
-$codexRoot = if ($env:CODEX_HOME) {
-  $env:CODEX_HOME
-} else {
-  Join-Path $env:USERPROFILE ".codex"
-}
-$skillsRoot = Join-Path $codexRoot "skills"
-$skillLink = Join-Path $skillsRoot "clean-citaton"
-
-if (-not (Test-Path -LiteralPath $skillSource -PathType Container)) {
-  throw "Run this command from the Clean Citaton repository root."
-}
-if (Test-Path -LiteralPath $skillLink) {
-  throw "Skill path already exists: $skillLink"
-}
-
+git clone https://github.com/qqaqq-code/clean-citation.git
+Set-Location clean-citation
+$skillSource = (Resolve-Path ".\skills\clean-citaton").Path
+$skillsRoot = Join-Path $env:USERPROFILE ".codex\skills"
 New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
-New-Item -ItemType Junction -Path $skillLink -Target $skillSource
+New-Item -ItemType Junction -Path (Join-Path $skillsRoot "clean-citaton") -Target $skillSource
 ```
 
-`$skillSource` 会解析为每位用户实际克隆位置下的 `skills\clean-citaton`。仓库内容更新后，Junction 会同步呈现最新版本。
+`$skillSource` 会解析为实际克隆位置下的 `skills\clean-citaton`。仓库内容更新后，Junction 会同步呈现最新版本。
 
 ### macOS 与 Linux 源码仓库
 
-终端先进入克隆后的仓库根目录，再执行：
+终端执行：
 
 ```bash
+git clone https://github.com/qqaqq-code/clean-citation.git
+cd clean-citation
 repository_root="$(pwd)"
 codex_root="${CODEX_HOME:-$HOME/.codex}"
 mkdir -p "$codex_root/skills"
@@ -298,49 +287,9 @@ python .\skills\clean-citaton\scripts\clean_citaton.py `
 
 退出码 `0` 表示全部条目达到 `FINAL`，退出码 `2` 表示结果已发布且包含其他状态，退出码 `3` 表示运行文件完整性校验触发。
 
-## 发布到 GitHub
+## 项目完整性
 
-### 1. 创建仓库
-
-在 GitHub 的 `New repository` 页面创建空仓库，仓库名建议使用 `clean-citaton`。README、License 与 Gitignore 初始化项保持为空，本地仓库已经包含这些文件。
-
-### 2. 提交源码
-
-在项目根目录执行：
-
-```powershell
-git add .
-git status
-git commit -m "Initial release: Clean Citaton v1.0.0"
-$githubUser = "YOUR_GITHUB_ACCOUNT"
-git remote add origin "https://github.com/$githubUser/clean-citaton.git"
-git push -u origin main
-```
-
-### 3. 创建首个版本
-
-```powershell
-git tag -a v1.0.0 -m "Clean Citaton v1.0.0"
-git push origin v1.0.0
-```
-
-`v1.0.0` 标签会触发 `.github/workflows/build-portable.yml`，构建 Windows、Linux 与 macOS 便携包，并创建对应 GitHub Release。
-
-### 4. 核对发布页
-
-GitHub 的 `Actions` 页面展示三平台构建进度。`Releases` 页面展示版本说明与三个便携包。源码用户可直接克隆仓库，便携程序用户可下载对应平台压缩包。
-
-## 发布完整性
-
-项目使用运行文件哈希、只读发布、缓存脱敏、Skill 结构校验和 GitHub Actions 跨平台构建。维护者发布前执行：
-
-```powershell
-$env:PYTHONDONTWRITEBYTECODE = "1"
-$codexRoot = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
-$validator = Join-Path $codexRoot "skills\.system\skill-creator\scripts\quick_validate.py"
-python $validator skills\clean-citaton
-python .\skills\clean-citaton\scripts\clean_citaton.py --show-config
-```
+项目使用运行文件哈希、只读发布、缓存脱敏、Skill 结构校验和 GitHub Actions 跨平台构建。
 
 更多设计细节见 [数据源说明](skills/clean-citaton/references/data-sources.md)、[运行方式](skills/clean-citaton/references/runtime.md)、[输入输出结构](skills/clean-citaton/references/schemas.md) 与 [人工核查流程](skills/clean-citaton/references/manual-review.md)。
 
