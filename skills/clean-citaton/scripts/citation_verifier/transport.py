@@ -22,6 +22,8 @@ from urllib.request import Request, urlopen
 SECRET_QUERY_KEYS = {"apikey", "api_key", "access_token", "key", "token"}
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 SENSITIVE_HEADER_KEYS = {"authorization", "cookie", "proxy-authorization", "x-api-key"}
+RATE_LIMIT_INITIAL_DELAY = 15.0
+MAX_RETRY_DELAY = 300.0
 
 
 class HttpTransportError(RuntimeError):
@@ -390,10 +392,15 @@ def _retry_delay(response: HttpResponse, attempt: int) -> float:
     retry_after = response.headers.get("retry-after") or response.headers.get("ratelimit-reset")
     if retry_after:
         try:
-            return min(65.0, max(0.0, float(retry_after)))
+            delay = float(retry_after)
+            if response.headers.get("ratelimit-reset") and delay > time.time():
+                delay -= time.time()
+            return min(MAX_RETRY_DELAY, max(RATE_LIMIT_INITIAL_DELAY, delay))
         except ValueError:
             pass
-    return 5.0 if response.status_code == 429 else 1.5 * (attempt + 1)
+    if response.status_code == 429:
+        return min(MAX_RETRY_DELAY, RATE_LIMIT_INITIAL_DELAY * (2**attempt))
+    return 1.5 * (attempt + 1)
 
 
 def _cached_response(value: Mapping[str, Any]) -> HttpResponse:

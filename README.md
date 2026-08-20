@@ -75,7 +75,7 @@ When an official source encounters credential, TLS, HTTP, or network failure, th
 
 Some Windows Python environments trigger an OpenSSL `record layer failure` with AAAI OJS. The runtime starts with the Python standard network stack and activates the operating-system `curl` TLS channel only for `ojs.aaai.org` after a connection-level TLS failure. Pages, redirect targets, metadata, HTTP status, and access controls remain under the AAAI official domain.
 
-The arXiv adapter follows the legacy API access cadence: one global connection, at least 3.05 seconds between adjacent requests, exact-ID batching, and caching.
+The arXiv adapter uses one global connection, a conservative five-second interval between adjacent requests, exact-ID batching, and caching. Transient HTTP 429 responses remain inside a four-retry backoff loop with 15, 30, 60, and 120-second default delays; a server `Retry-After` value takes priority. During this retry window, rate limiting is an active wait state rather than a source failure.
 
 ## Repository Layout
 

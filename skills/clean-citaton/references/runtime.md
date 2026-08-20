@@ -34,6 +34,8 @@ First write the estimate without network calls:
 
 Report `run-plan.json`, then execute without `--plan-only`. Read `progress.json` for item-level progress.
 
+For runs that can reach arXiv, allow at least 20 minutes of command execution time. The `arxiv_fallback` stage may remain quiet while the cross-process request gate or a server-directed backoff is active. Keep waiting while the process remains active. A transient HTTP 429 stays inside the runtime retry loop and becomes a source-access failure only after four retries are exhausted.
+
 Useful options:
 
 ```text

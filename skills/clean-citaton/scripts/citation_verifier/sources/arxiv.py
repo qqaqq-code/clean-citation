@@ -27,7 +27,7 @@ class ArxivSource(MetadataSource):
         self,
         transport: HttpTransport | None = None,
         user_agent: str = DEFAULT_USER_AGENT,
-        min_interval: float = 3.05,
+        min_interval: float = 5.0,
         rate_state_path: str | Path | None = None,
     ) -> None:
         super().__init__(transport=transport, user_agent=user_agent)

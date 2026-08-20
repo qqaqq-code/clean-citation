@@ -9,7 +9,7 @@ Keep these trust boundaries:
 3. One source owns all core canonical fields; no multi-source voting.
 4. Official source failure is distinct from official record absence; retain it in the audit while continuing the fixed fallback chain.
 5. OpenReview stays after non-native official sources and preserves accepted, submitted, rejected, and withdrawn states.
-6. arXiv stays last, single-connection, and at least 3.05 seconds between requests.
+6. arXiv stays last, single-connection, and at least five seconds between requests; transient HTTP 429 responses use the bounded internal backoff policy.
 7. Core runtime dependencies stay inside the Python standard library; the approved AAAI TLS bridge may call the operating-system `curl` executable after a Python TLS connection failure.
 
 Before a pull request, validate the Skill metadata and runtime configuration:

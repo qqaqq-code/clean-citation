@@ -79,7 +79,7 @@ AI Magazine is resolved through AAAI's official OJS archive, issue, and article 
 
 ## arXiv
 
-Use `https://export.arxiv.org/api/query`. Public reads need no key. The official API Terms of Use currently require at most one request every three seconds across all controlled machines and only one connection at a time. The runtime uses 3.05 seconds, batches exact IDs through comma-delimited `id_list`, and caches results for 24 hours.
+Use `https://export.arxiv.org/api/query`. Public reads need no key. The official API Terms of Use currently require at most one request every three seconds across all controlled machines and only one connection at a time. The runtime uses a conservative five-second cadence, batches exact IDs through comma-delimited `id_list`, and caches results for 24 hours. A transient HTTP 429 remains inside four internal retries with 15, 30, 60, and 120-second default delays. A numeric `Retry-After` or `RateLimit-Reset` header takes priority up to five minutes. Only retry-budget exhaustion enters the source-access failure audit.
 
 Resolve the base ID to the latest record and retain version, updated timestamp, comment, and withdrawal state. If latest is withdrawn, return `WITHDRAWN_ARXIV`; never substitute an older PDF as “latest.”
 

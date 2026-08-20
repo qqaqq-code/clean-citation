@@ -181,7 +181,12 @@ def _build_sources(
     cache_root = Path(args.cache_dir or _default_cache_dir())
 
     def transport(name: str, ttl_seconds: float, *, cache_allowed: bool = True):
-        inner = UrllibTransport(user_agent=DEFAULT_USER_AGENT, timeout=args.timeout, retries=1)
+        retries = 4 if name == "arxiv" else 1
+        inner = UrllibTransport(
+            user_agent=DEFAULT_USER_AGENT,
+            timeout=args.timeout,
+            retries=retries,
+        )
         if name == "aaai":
             inner = HostTlsFallbackTransport(
                 inner,

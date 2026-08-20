@@ -18,6 +18,8 @@ STATIC_INDEX_SOURCES = {
     "mlsys",
     "vldb",
 }
+ARXIV_REQUEST_INTERVAL_SECONDS = 5.0
+ARXIV_DEFAULT_THROTTLE_RESERVE_SECONDS = 225
 
 
 @dataclass(slots=True)
@@ -101,7 +103,8 @@ def build_run_plan(
     if openreview_v1:
         estimated_max += max(0, openreview_v1 - 1) * 12
     if arxiv_calls_max:
-        estimated_max += max(0, arxiv_calls_max - 1) * 3.05
+        estimated_max += max(0, arxiv_calls_max - 1) * ARXIV_REQUEST_INTERVAL_SECONDS
+        estimated_max += ARXIV_DEFAULT_THROTTLE_RESERVE_SECONDS
     estimated_max = int(math.ceil(estimated_max))
 
     relevant_missing = {
@@ -118,7 +121,8 @@ def build_run_plan(
         assumptions=[
             "The minimum assumes responsive official pages and useful cache hits.",
             "The maximum assumes official misses, OpenReview lookup, and arXiv fallback for every eligible item.",
-            "arXiv is single-connection and limited to one request every three seconds; exact IDs are batched by 50.",
+            "arXiv uses one connection, a conservative five-second request cadence, and exact-ID batches of 50.",
+            "The maximum reserves one default 225-second arXiv throttling episode; a server Retry-After value can extend the wait.",
             "No model tokens are spent polling: progress is written by the program to progress.json.",
         ],
     )

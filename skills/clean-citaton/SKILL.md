@@ -21,7 +21,7 @@ Treat model-generated titles and user citations as untrusted hints. Use the host
 1. Create one project folder at `<workspace>/citation-projects/<project-name>/`. Write structured hints to `input/citations.json` according to [references/schemas.md](references/schemas.md). Preserve the original citation in `original_text`; use `null` for unknown values.
 2. Read [references/runtime.md](references/runtime.md), select the bundled executable for the computer, and use the source launcher when Python 3.10+ is already available.
 3. Run once with `--plan-only`. Read `results/run-plan.json` and report the estimated duration, route counts, and credential state before retrieval.
-4. Run the same project without `--plan-only`. The program updates `results/progress.json` after each item.
+4. Run the same project without `--plan-only`. For jobs that may reach arXiv, use an execution timeout of at least 20 minutes. When the command remains active, continue waiting instead of restarting it; the program updates `results/progress.json` after each item.
 5. Read `results/verification.json`, `results/references.bib`, and `results/references.md`. Explain every status that is below `FINAL`.
 6. When `results/manual-review-queue.json` contains items, follow [references/manual-review.md](references/manual-review.md). Research high-confidence, accessible first-party URLs and publish the model-owned review files under `<project>/manual-review/`.
 7. Present program results and human-review candidates as separate outputs. Use confirmed DOI or official URLs to update the input and run a fresh verification pass.
@@ -41,7 +41,7 @@ Treat model-generated titles and user citations as untrusted hints. Use the host
 
 One selected authority owns the complete set of core fields: title, author order, venue, year, DOI, volume, issue, and pages. Never merge these fields across records or use source voting. Crossref and Semantic Scholar are outside this authority chain.
 
-The arXiv legacy API is limited to one request every three seconds across controlled machines and one connection at a time. Keep the bundled 3.05-second cross-process gate, exact-ID batching, and cache.
+The arXiv legacy API allows one request every three seconds across controlled machines and one connection at a time. Keep the bundled conservative five-second cross-process gate, exact-ID batching, and cache. Treat `arxiv_fallback` as an active wait state. Transient HTTP 429 responses trigger four internal retries with 15, 30, 60, and 120-second default delays, while `Retry-After` takes priority up to five minutes. Report a source access failure only after the runtime exhausts this retry budget.
 
 ## Failure and fallback semantics
 
